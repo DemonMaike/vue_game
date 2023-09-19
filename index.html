@@ -16,15 +16,15 @@
                 <img src="img/logo.png" alt="Oops!" class="app__logo">
             </div>
             <div class="app__body">
-                <button class="app__btn">
+                <button class="app__btn" @click="goToQestions">
                     <i class="fa fa-play-circle-o" aria-hidden="true"></i>
                     <div class="app__btn-text">Начать</div>
                 </button>
-                <button class="app__btn">
+                <button class="app__btn" @click="goToAchivments">
                     <i class="fa fa-trophy" aria-hidden="true"></i>
                     <div class="app__btn-text">Достижения</div>
                 </button>
-                <button class="app__btn">
+                <button class="app__btn" @click="goToSocial">
                     <i class="fa fa-user" aria-hidden="true"></i>
                     <div class="app__btn-text">Автор</div>
                 </button>
@@ -108,7 +108,7 @@
                     <i class="fa fa-telegram"></i>
                     Telegram
                 </a>
-                <button class="app__btn btn__back">
+                <button class="app__btn btn__back" @click="goToMain">
                     <i class="fa fa-reply" aria-hidden="true"></i>
                 </button>
             </div>
@@ -156,7 +156,6 @@
                 'protoss': 0,
                 'taldarim': 0,
                 'terran': 0,
-
             },
             totalGame: localStorage.getItem('sc2TotalGame') ? JSON.parse(localStorage.getItem('sc2TotalGame')) : {
                 'zerg': 0,
@@ -167,11 +166,62 @@
                 'infested': 0,
                 'hybrid': 0,
             },
-            totalGames: localStorage.getItem('sc2TotalGames') ? localStorage.getItem('sc2TotalGames') : 0
+            totalGames: localStorage.getItem('sc2TotalGames') ? localStorage.getItem('sc2TotalGames') : 0,
+            questions: questions,
+            results: results,
+            resultRace: null,
         },
-        questions: questions,
-        results: results,
-        resultRace: null,
+
+        methods: {
+            goToMain() {
+                this.showMain = true
+                this.showSocial = false
+                this.showAcivments = false
+                this.showQuestions = false
+                this.showResult = false
+            },
+            goToSocial() {
+                this.showMain = false
+                this.showSocial = true
+                this.showAcivments = false
+                this.showQuestions = false
+                this.showResult = false
+            },
+            goToAchivments() {
+                if (this.totalGames > 0) {
+                this.showMain = false
+                this.showSocial = false
+                this.showAcivments = true
+                this.showQuestions = false
+                this.showResult = false
+            } else {
+                this.goToQestions()
+                }
+            },
+            goToQestions() {
+                this.score = {
+                    'zerg': 0,
+                    'primal': 0,
+                    'protoss': 0,
+                    'taldarim': 0,
+                    'terran': 0,
+                }
+                this.showMain = false
+                this.showSocial = false
+                this.showAcivments = false
+                this.showQuestions = true
+                this.showResult = false
+            },
+            goToResult(race) {
+                this.showMain = false
+                this.showSocial = false
+                this.showAcivments = false
+                this.showQuestions = false
+                this.showResult = true
+                this.resultRace = race
+            },
+
+        },
 
     })
 </script>
