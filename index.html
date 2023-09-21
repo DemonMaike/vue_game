@@ -71,7 +71,7 @@
                         </div>
                     </div>
                     <div class="app__body-bottom">
-                        <button class="app__btn btn__back btn_achivment">
+                        <button class="app__btn btn__back btn_achivment" @click="goToMain">
                             <i class="fa fa-reply" aria-hidden="true"></i>
                         </button>
 
@@ -116,21 +116,21 @@
             </div>
         </div>
 
-        <div class="app results" v-show="showResult" data-race="zerg">
+        <div class="app results" v-show="showResult" v-bind:data-race="resultRace">
             <div class="app__body">
                 <div class="app__results-inner">
-                    <div class="results__title">Зерг</div>
+                    <div class="results__title">{{ results[resultRace].name }}</div>
                     <div class="results__img">
-                        <img src="img/zerg_logo.png" alt="">
+                        <img :src="'img/'+resultRace+'_logo.png'">
                     </div>
                     <div class="results__text-box">
-                        <p class="results__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Illo libero ad ut vel atque! Quae distinctio tenetur veniam maiores cumque dignissimos adipisci asperiores provident earum. Fugiat quos adipisci perspiciatis ullam.</p>
-                        <p class="results__quote">Цитата 1</p>
-                        <p class="results__quote">Цитата 2</p>
-                        <p class="results__author">Автор</p>
+                        <p class="results__text"> {{ results[resultRace].description }}</p>
+                        <p class="results__quote">{{ results[resultRace].quote1 }}</p>
+                        <p class="results__quote">{{ results[resultRace].quote2 }}</p>
+                        <p class="results__author">{{ results[resultRace].author }}</p>
                     </div>
                     <div>
-                        <button class="app__btn btn__back btn__zerg">
+                        <button :class="'app__btn btn__back btn__'+ResultRace" @click="goToAchivments">
                             <i class="fa fa-reply" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -140,8 +140,9 @@
 
     </div>
     
-<script src="js/const.js"></script>
+
 <script src="js/vue.js"></script>
+<script src="js/const.js"></script>
 <script>
     let app = new Vue({
         el: '.main',
@@ -171,7 +172,7 @@
             totalGames: localStorage.getItem('sc2TotalGames') ? localStorage.getItem('sc2TotalGames') : 0,
             questions: questions,
             results: results,
-            resultRace: null,
+            resultRace: 'zerg',
         },
 
         methods: {
@@ -225,12 +226,50 @@
             nextQuestions(answer) {
                 if(this.number == 24) {
                     this.number = 0
-                    //this.endGame();
+                    this.endGame();
                 } else {
                     this.number++
                     eval(answer)
                 }
-            }
+            },
+            endGame() {
+                this.totalGames++;
+                localStorage.setItem('sc2TotalGames', this.totalGames++)
+                //zerg
+                if(this.score.zerg > this.score.protoss && this.score.zerg > this.score.terran && 
+                this.score.primal < 8 && Math.abs(this.score.protoss - this.score.zerg) > 3) {
+                    this.goToResult('zerg');
+                    this.totalGame.zerg++
+                }
+                //Изначальный
+                else if(this.score.primal > this.score.protoss && this.score.primal > this.score.terran && this.score.primal == 8){
+                    this.goToResult('primal');
+                    this.totalGame.primal++
+                }
+                //Протос
+                else if(this.score.protoss > this.score.zerg && this.score.protoss > this.score.terran && this.score.taldarim < 5 &&
+                Math.abs(this.score.protoss - this.score.zerg) > 3) {
+                    this.goToResult('protoss');
+                    this.totalGame.protoss++
+                }
+                //Талдарим
+                else if(this.score.protoss > this.score.zerg &&
+                this.score.protoss > this.score.terran &&
+                this.score.taldarim == 5) {
+                    this.goToResult('taldarim');
+                    this.totalGame.taldarim++
+                }
+                //Гибрид
+                else if(Math.abs(this.score.protoss - this.score.zerg) <= 3) {
+                    this.goToResult('hybrid');
+                    this.totalGame.hybrid++
+                }
+                else {
+                    this.goToResult('infested');
+                    this.totalGame.infested++
+                }
+                localStorage.setItem('sc2TotalGame', JSON.stringify(this.totalGame))
+            },
 
         },
 
