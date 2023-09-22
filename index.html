@@ -29,7 +29,7 @@
                     <div class="app__btn-text">Автор</div>
                 </button>
                 <button class="app__btn btn__sound">
-                    <i class="fa fa-volume-up" aria-hidden="true"></i>
+                    <i class="fa fa-volume-off" aria-hidden="true"></i>
                     <div class="app__btn-text">Звук</div>
                 </button>
             </div>
@@ -45,29 +45,31 @@
                     <div class="app__body-top">
                         <div class="app__card">
                             <div class="app__card-text">Счёт</div>
-                            <div class="app__card-count">0</div>
+                            <div class="app__card-count">{{ totalScore }}</div>
                         </div>
                         <div class="app__card">
                             <div class="app__card-text">Открыто рас</div>
-                            <div class="app__card-count">0</div>
+                            <div class="app__card-count">{{ openRaces }}</div>
                         </div>
                         <div class="app__card">
                             <div class="app__card-text">Всего игр</div>
-                            <div class="app__card-count">0</div>
+                            <div class="app__card-count">{{ totalGames }}</div>
                         </div>
                         <div class="app__card">
                             <div class="app__card-text">Любимая раса</div>
-                            <div class="app__card-count">0</div>
+                            <div class="app__card-count">{{ favoriteRace }}</div>
                         </div>
                     </div>
                     <div class="app__body-middle">
-                        <div class="app_result">
+                        <div class="app_result" v-for="(race,k) in results"
+                        @click="goToResult(k)"
+                        v-show="showResultRace[k]">
                             <div class="app__result-score">
                                 <i class="fa fa-star" aria-hidden="true"></i>
-                                <div class="app__result-count">150</div>
+                                <div class="app__result-count">{{ race.points }}</div>
                             </div>
-                            <div class="app__result-name">Зерг</div>
-                            <div class="app__result-amount">5</div>
+                            <div class="app__result-name">{{ race.name }}</div>
+                            <div class="app__result-amount">{{ totalGame[k] }}</div>
                         </div>
                     </div>
                     <div class="app__body-bottom">
@@ -143,137 +145,6 @@
 
 <script src="js/vue.js"></script>
 <script src="js/const.js"></script>
-<script>
-    let app = new Vue({
-        el: '.main',
-        data: {
-            showMain: true,
-            showSocial: false,
-            showAcivments: false,
-            showQuestions: false,
-            showResult:false,
-            number: 0,
-            score: {
-                'zerg': 0,
-                'primal': 0,
-                'protoss': 0,
-                'taldarim': 0,
-                'terran': 0,
-            },
-            totalGame: localStorage.getItem('sc2TotalGame') ? JSON.parse(localStorage.getItem('sc2TotalGame')) : {
-                'zerg': 0,
-                'primal': 0,
-                'protoss': 0,
-                'taldarim': 0,
-                'terran': 0,
-                'infested': 0,
-                'hybrid': 0,
-            },
-            totalGames: localStorage.getItem('sc2TotalGames') ? localStorage.getItem('sc2TotalGames') : 0,
-            questions: questions,
-            results: results,
-            resultRace: 'zerg',
-        },
-
-        methods: {
-            goToMain() {
-                this.showMain = true
-                this.showSocial = false
-                this.showAcivments = false
-                this.showQuestions = false
-                this.showResult = false
-            },
-            goToSocial() {
-                this.showMain = false
-                this.showSocial = true
-                this.showAcivments = false
-                this.showQuestions = false
-                this.showResult = false
-            },
-            goToAchivments() {
-                if (this.totalGames > 0) {
-                this.showMain = false
-                this.showSocial = false
-                this.showAcivments = true
-                this.showQuestions = false
-                this.showResult = false
-            } else {
-                this.goToQestions()
-                }
-            },
-            goToQestions() {
-                this.score = {
-                    'zerg': 0,
-                    'primal': 0,
-                    'protoss': 0,
-                    'taldarim': 0,
-                    'terran': 0,
-                }
-                this.showMain = false
-                this.showSocial = false
-                this.showAcivments = false
-                this.showQuestions = true
-                this.showResult = false
-            },
-            goToResult(race) {
-                this.showMain = false
-                this.showSocial = false
-                this.showAcivments = false
-                this.showQuestions = false
-                this.showResult = true
-                this.resultRace = race
-            },
-            nextQuestions(answer) {
-                if(this.number == 24) {
-                    this.number = 0
-                    this.endGame();
-                } else {
-                    this.number++
-                    eval(answer)
-                }
-            },
-            endGame() {
-                this.totalGames++;
-                localStorage.setItem('sc2TotalGames', this.totalGames++)
-                //zerg
-                if(this.score.zerg > this.score.protoss && this.score.zerg > this.score.terran && 
-                this.score.primal < 8 && Math.abs(this.score.protoss - this.score.zerg) > 3) {
-                    this.goToResult('zerg');
-                    this.totalGame.zerg++
-                }
-                //Изначальный
-                else if(this.score.primal > this.score.protoss && this.score.primal > this.score.terran && this.score.primal == 8){
-                    this.goToResult('primal');
-                    this.totalGame.primal++
-                }
-                //Протос
-                else if(this.score.protoss > this.score.zerg && this.score.protoss > this.score.terran && this.score.taldarim < 5 &&
-                Math.abs(this.score.protoss - this.score.zerg) > 3) {
-                    this.goToResult('protoss');
-                    this.totalGame.protoss++
-                }
-                //Талдарим
-                else if(this.score.protoss > this.score.zerg &&
-                this.score.protoss > this.score.terran &&
-                this.score.taldarim == 5) {
-                    this.goToResult('taldarim');
-                    this.totalGame.taldarim++
-                }
-                //Гибрид
-                else if(Math.abs(this.score.protoss - this.score.zerg) <= 3) {
-                    this.goToResult('hybrid');
-                    this.totalGame.hybrid++
-                }
-                else {
-                    this.goToResult('infested');
-                    this.totalGame.infested++
-                }
-                localStorage.setItem('sc2TotalGame', JSON.stringify(this.totalGame))
-            },
-
-        },
-
-    })
-</script>
+<script src="js/main.js"></script>
 </body>
 </html>
